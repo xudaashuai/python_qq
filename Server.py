@@ -1,14 +1,9 @@
 import json
 import re
-import socket
+from socket import socket
 from pprint import pprint
 from QQCONFIG import *
 
-
-def login_check():
-    s_login=socket(AF_INET,SOCK_DGRAM)
-    for x in user_state.keys():
-        s_login
 
 user_info = {
     'xudashuai': {
@@ -27,9 +22,10 @@ user_info = {
 user_state = {'xudashuai': ('', '')}
 wait_message = {}
 s.bind(ADDR)
-
+print('start listen',s)
 while True:
     rec, addr = s.recvfrom(1024)
+    print(rec,addr)
     data = json.loads(rec.decode())
     pprint(data)
     response = {}
