@@ -57,10 +57,16 @@ class ChatUI(object):
         elif len(content) >= 800:
             messagebox.showinfo('提示', '消息过长')
             return
-        mes = "03#{0}#{1}#".format(self.chat_nickname, content).encode('utf-8')
+        mes = "03#{0}#{1}#".format(self.chat_username, content).encode('utf-8')
         print(mes)
         s.sendto(mes, ADDR)
-        rec, _ = s.recvfrom(1024)
+        recThread = ReceiveThread()
+        recThread.start()
+        recThread.join(5)
+        if q.empty():
+            print('连接超时')
+            return
+        rec=q.get_nowait()
         print(rec)
         rec_code = rec.decode('utf-8').split(':')[1]
         self.text_msglist.delete(str(float(self.text_msglist.index(END)) - 2.0), END)
@@ -72,6 +78,7 @@ class ChatUI(object):
         return 'break'
 
     def close_chat(self):
+
         self.chat_root.destroy()
         self.friend_ui.close_chat(self.chat_username)
 
@@ -85,7 +92,3 @@ class ChatUI(object):
         self.text_msglist.see(END)
         self.text_msg.delete('0.0', END)
         self.text_msglist['state'] = DISABLED
-
-
-if __name__ == '__main__':
-    ChatUI('xds', {'username': 'xddds', 'nickname': 'xdds'},None)

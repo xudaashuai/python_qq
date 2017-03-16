@@ -7,13 +7,18 @@ from property import *
 
 
 def login(username, password):
-    if register_re.fullmatch(username):
-        if register_re.fullmatch(password):
+    if name_re.fullmatch(username):
+        if name_re.fullmatch(password):
             mes = "02#{0}#{1}#".format(username, password).encode('utf-8')
             print(mes)
             s.sendto(mes, ADDR)
-            rec, _ = s.recvfrom(1024)
-            print(rec)
+            recThread=ReceiveThread()
+            recThread.start()
+            recThread.join(1)
+            if q.empty():
+                messagebox.showinfo(message='登录超时，请重试')
+                return
+            rec=q.get_nowait()
             rec_code = rec.decode('utf-8').split(':')[1]
             if rec_code == '01':
                 root.destroy()
@@ -33,8 +38,8 @@ def login(username, password):
 
 
 def register(username, password, nickname):
-    if register_re.fullmatch(username):
-        if register_re.fullmatch(password):
+    if name_re.fullmatch(username):
+        if name_re.fullmatch(password):
             if re.compile("[^#:]+").fullmatch(nickname):
                 mes = "01#{0}#{1}#{2}#{2}#".format(username, nickname, password).encode('utf-8')
                 print(mes)
@@ -84,7 +89,6 @@ def change_mode(event=None):
         rmode.set('注册')
         password_entry['show'] = t
     else:
-
         start_weight_anim(name_entry, 'height', 100, offset=-25)
         start_window_anim(root, 'height', 100, offset=-30)
         start_weight_anim(nick_label, 'y', 100, offset=-80)
